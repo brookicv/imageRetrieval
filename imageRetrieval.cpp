@@ -5,6 +5,7 @@
 #include <string>
 extern "C" {
     #include <vl/sift.h>
+    #include <vl/kmeans.h>
 }
 
 using namespace std;
@@ -104,7 +105,7 @@ void vl_root_sift_extract(VlSiftFilt *vl_sift, vl_sift_pix* data,vector<VlSiftKe
 
 int main() 
 {
-    const string file = "/home/book/Pictures/timg.jpeg";
+    const string file = "/home/book/git/imageRetrieval/image/1.jpg";
     Mat img = imread(file,IMREAD_GRAYSCALE);
     Mat color_img = imread(file);
     Mat float_img;
@@ -112,7 +113,7 @@ int main()
 
     int rows = img.rows;
     int cols = img.cols;
-    VlSiftFilt* vl_sift =  vl_sift_new(cols,rows,4,2,0);
+    VlSiftFilt* vl_sift =  vl_sift_new(cols,rows,4,3,0);
     vl_sift_set_peak_thresh(vl_sift,5);
     vl_sift_set_edge_thresh(vl_sift,5);
 
@@ -129,11 +130,49 @@ int main()
     for(int i = 0; i < kpts.size(); i ++) {
         circle(color_img,Point(kpts[i].x,kpts[i].y),kpts[i].sigma,Scalar(0,255,0));
     }
+
+    vector<KeyPoint> oc_kpts;
+    Mat oc_des;
+    Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create(427);
+    sift->detectAndCompute(color_img,noArray(),oc_kpts,oc_des);
+
+    for(int i = 0; i < oc_kpts.size(); i ++) {
+        circle(color_img,oc_kpts[i].pt,oc_kpts[i].size,Scalar(255,0,0));
+    }
+
+    cout << "vl_sift:" << descriptors.size() << endl;
+    cout << "opencv_sift:" << oc_des.size() << endl;
+    
+    // K-means
+    // Init kmeans
+    // Using float data and L2 distance for clustering
+    VlKMeans* vl_kmeans = vl_kmeans_new(VL_TYPE_FLOAT,VlDistanceL2);
+
+    // Use Lloyd algorithm
+    vl_kmeans_set_algorithm(vl_kmeans,VlKMeansElkan);
+
+    int dims = 2;
+    int data_num = img.rows * img.cols;
+    int k = 5;
+    // Initialize the cluster center by randomly sampling data
+    //vl_kmeans_init_centers_with_rand_data(vl_kmeans,data,dims,data_num,k);
+    vl_kmeans_init_centers_plus_plus(vl_kmeans,data,dims,data_num,k);
+
+    // Run at most 100 iterations of cluster refinement using Lloyd algorithm
+    //vl_kmeans_set_max_num_iterations(vl_kmeans,100);
+    //vl_kmeans_refine_centers(vl_kmeans,img.data,data_num);
+
+    vl_kmeans_cluster(vl_kmeans,data,dims,data_num,k);
+
+    //auto cluster_center = vl_kmeans_get_centers(vl_kmeans);
+    vl_uint32* assignments = (vl_uint32*)vl_malloc(sizeof(vl_uint32) * img.rows * img.cols);
+
+    vl_kmeans_quantize(vl_kmeans,assignments,NULL,img.data,img.rows * img.cols);
+
     namedWindow("SIFT");
     imshow("SIFT",color_img);
     waitKey();
     return 0;
 
-    // Convert to OpenCV data Strucuture
 
 }
