@@ -114,8 +114,8 @@ int main()
     int rows = img.rows;
     int cols = img.cols;
     VlSiftFilt* vl_sift =  vl_sift_new(cols,rows,4,3,0);
-    vl_sift_set_peak_thresh(vl_sift,5);
-    vl_sift_set_edge_thresh(vl_sift,5);
+    vl_sift_set_peak_thresh(vl_sift,4);
+    vl_sift_set_edge_thresh(vl_sift,10);
 
     vl_sift_pix *data = (vl_sift_pix*)(float_img.data);
 
@@ -143,31 +143,6 @@ int main()
     cout << "vl_sift:" << descriptors.size() << endl;
     cout << "opencv_sift:" << oc_des.size() << endl;
     
-    // K-means
-    // Init kmeans
-    // Using float data and L2 distance for clustering
-    VlKMeans* vl_kmeans = vl_kmeans_new(VL_TYPE_FLOAT,VlDistanceL2);
-
-    // Use Lloyd algorithm
-    vl_kmeans_set_algorithm(vl_kmeans,VlKMeansElkan);
-
-    int dims = 2;
-    int data_num = img.rows * img.cols;
-    int k = 5;
-    // Initialize the cluster center by randomly sampling data
-    //vl_kmeans_init_centers_with_rand_data(vl_kmeans,data,dims,data_num,k);
-    vl_kmeans_init_centers_plus_plus(vl_kmeans,data,dims,data_num,k);
-
-    // Run at most 100 iterations of cluster refinement using Lloyd algorithm
-    //vl_kmeans_set_max_num_iterations(vl_kmeans,100);
-    //vl_kmeans_refine_centers(vl_kmeans,img.data,data_num);
-
-    vl_kmeans_cluster(vl_kmeans,data,dims,data_num,k);
-
-    //auto cluster_center = vl_kmeans_get_centers(vl_kmeans);
-    vl_uint32* assignments = (vl_uint32*)vl_malloc(sizeof(vl_uint32) * img.rows * img.cols);
-
-    vl_kmeans_quantize(vl_kmeans,assignments,NULL,img.data,img.rows * img.cols);
 
     namedWindow("SIFT");
     imshow("SIFT",color_img);

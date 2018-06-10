@@ -130,8 +130,9 @@ void vl_kmeans_image()
 
     for(int i = 0 ; i < k ; i ++) {
         for(int j = 0; j < dims; j ++) {
-            cout << *(center + i + j*dims) << endl; 
+            cout << *(center + i + j*dims) << " ";
         }
+        cout << endl;
     }
 }
 int main(){
