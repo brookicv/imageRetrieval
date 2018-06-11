@@ -107,7 +107,7 @@ void vl_root_sift_extract(VlSiftFilt *vl_sift, vl_sift_pix* data,vector<VlSiftKe
 
 int main() 
 {
-    const string file = "../0.jpg";
+    const string file = "1.jpg";
     Mat img = imread(file,IMREAD_GRAYSCALE);
     Mat color_img = imread(file);
     Mat float_img;
@@ -116,7 +116,7 @@ int main()
     int rows = img.rows;
     int cols = img.cols;
     VlSiftFilt* vl_sift =  vl_sift_new(cols,rows,4,3,0);
-    vl_sift_set_peak_thresh(vl_sift,4);
+    vl_sift_set_peak_thresh(vl_sift,10);
     vl_sift_set_edge_thresh(vl_sift,10);
 
     vl_sift_pix *data = (vl_sift_pix*)(float_img.data);
