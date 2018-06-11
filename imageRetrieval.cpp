@@ -56,17 +56,19 @@ void vl_sift_extract(VlSiftFilt *vl_sift, vl_sift_pix* data,
 
             VlSiftKeypoint* pKpts = vl_sift->keys;
             for(int i = 0; i < vl_sift->nkeys; i ++) {
-                
-                kpts.push_back(*pKpts);
 
                 double angles[4];
                 // 计算特征点的方向，包括主方向和辅方向，最多4个
                 int angleCount = vl_sift_calc_keypoint_orientations(vl_sift,angles,pKpts);
 
-                // 只计算主方向的描述子
-                float *des = new float[128];
-                vl_sift_calc_keypoint_descriptor(vl_sift,des,pKpts,angles[0]);
-                descriptors.push_back(des);
+                // 对于方向多于一个的特征点，每个方向分别计算特征描述符
+                // 并且将特征点复制多个
+                for(int i = 0 ; i < angleCount; i ++){
+                    float *des = new float[128];
+                    vl_sift_calc_keypoint_descriptor(vl_sift,des,pKpts,angles[0]);
+                    descriptors.push_back(des);
+                    kpts.push_back(*pKpts);
+                }
                 pKpts ++;
             }    
             // Process next octave
@@ -105,7 +107,7 @@ void vl_root_sift_extract(VlSiftFilt *vl_sift, vl_sift_pix* data,vector<VlSiftKe
 
 int main() 
 {
-    const string file = "/home/book/git/imageRetrieval/image/1.jpg";
+    const string file = "../0.jpg";
     Mat img = imread(file,IMREAD_GRAYSCALE);
     Mat color_img = imread(file);
     Mat float_img;
