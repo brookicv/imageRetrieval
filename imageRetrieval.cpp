@@ -107,7 +107,7 @@ void vl_root_sift_extract(VlSiftFilt *vl_sift, vl_sift_pix* data,vector<VlSiftKe
 
 int main() 
 {
-    const string file = "1.jpg";
+    const string file = "../1.jpg";
     Mat img = imread(file,IMREAD_GRAYSCALE);
     Mat color_img = imread(file);
     Mat float_img;
@@ -115,8 +115,8 @@ int main()
 
     int rows = img.rows;
     int cols = img.cols;
-    VlSiftFilt* vl_sift =  vl_sift_new(cols,rows,4,3,0);
-    vl_sift_set_peak_thresh(vl_sift,10);
+    VlSiftFilt* vl_sift =  vl_sift_new(cols,rows,-1,3,0);
+    vl_sift_set_peak_thresh(vl_sift,0.04);
     vl_sift_set_edge_thresh(vl_sift,10);
 
     vl_sift_pix *data = (vl_sift_pix*)(float_img.data);
@@ -135,7 +135,7 @@ int main()
 
     vector<KeyPoint> oc_kpts;
     Mat oc_des;
-    Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create(427);
+    Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create();
     sift->detectAndCompute(color_img,noArray(),oc_kpts,oc_des);
 
     for(int i = 0; i < oc_kpts.size(); i ++) {
@@ -143,9 +143,9 @@ int main()
     }
 
     cout << "vl_sift:" << descriptors.size() << endl;
-    cout << "opencv_sift:" << oc_des.size() << endl;
+    cout << "opencv_sift-descriptors:" << oc_des.size() << endl;
     
-
+    imwrite("/home/brook/Pictures/sift.jpg",color_img);
     namedWindow("SIFT");
     imshow("SIFT",color_img);
     waitKey();
