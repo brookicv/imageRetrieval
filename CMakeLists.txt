@@ -6,6 +6,8 @@ set(OpenCV_DIR "/home/brook/Documents/source/opencv-3.4.1/build")
 
 FIND_PACKAGE(OpenCV REQUIRED)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 # debug
 set(CMAKE_BUILD_TYPE "Debug")  
 set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb") 
@@ -22,6 +24,8 @@ link_directories(${CMAKE_CURRENT_SOURCE_DIR}/vlfeat/lib)
 
 add_executable(main imageRetrieval.cpp)
 add_executable(kmeans kmeans.cpp)
+add_executable(bof bof_retrieval.cpp)
 
 target_link_libraries(main libvl.so ${OpenCV_LIBS}) # 
 target_link_libraries(kmeans libvl.so ${OpenCV_LIBS})
+target_link_libraries(bof ${OpenCV_LIBS})
