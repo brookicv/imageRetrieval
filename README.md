@@ -8,9 +8,9 @@
 ### 特征提取
 - [x] vlfeat sift 特征提取
 - [ ] PCA降维
-- [ ] kmeans聚类
+- [x] kmeans聚类
 
 ### 编码方式
-- [ ] BoF
+- [x] BoF
 - [ ] VLAD
 - [ ] FV
