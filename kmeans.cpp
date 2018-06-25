@@ -97,7 +97,7 @@ void opencv_kmeans()
 
 void vl_kmeans_image()
 {
-    const string file = "/home/book/git/imageRetrieval/image/1.jpg";
+    const string file = "../1.jpg";
     Mat img = imread(file);
 
     int dims = 3; // rows * cols * depth

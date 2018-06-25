@@ -20,12 +20,12 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/vlfeat/lib)
 
-#aux_source_directory(. DIR_SRCS)
+aux_source_directory(. DIR_SRCS)
 
-add_executable(main imageRetrieval.cpp)
-add_executable(kmeans kmeans.cpp)
-add_executable(bof bof_retrieval.cpp)
+#add_executable(main imageRetrieval.cpp)
+#add_executable(kmeans kmeans.cpp)
+add_executable(bof bof_retrieval.cpp imageTrainer.cpp)
 
-target_link_libraries(main libvl.so ${OpenCV_LIBS}) # 
-target_link_libraries(kmeans libvl.so ${OpenCV_LIBS})
+#target_link_libraries(main libvl.so ${OpenCV_LIBS}) # 
+#target_link_libraries(kmeans libvl.so ${OpenCV_LIBS})
 target_link_libraries(bof ${OpenCV_LIBS})
