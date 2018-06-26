@@ -5,10 +5,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/xfeatures2d.hpp>
 #include "imageTrainer.h"
-
 #include <opencv2/flann/kdtree_index.h>
-
-#include <uuid/uuid.h>
+#include <opencv2/highgui.hpp>
 
 using namespace std;
 using namespace cv;
@@ -47,33 +45,33 @@ void kd_test(){
 
 int main()
 {
-    const string image_folder = "/home/brook/git_folder/image_retrieval/images";
+    //const string image_folder = "/home/brook/git_folder/image_retrieval/images";
+    const string image_folder = "/home/book/git/imageRetrieval/images";
     vector<string> image_file_list;
     get_file_name_list(image_folder,image_file_list);
 
     ImageTrainer trainer(20,image_file_list);
 
     trainer.extract_sift();
-     trainer.vocabulary_kmeans();
+    //trainer.vocabulary_kmeans();
     
-    FileStorage fs_cluster("centers.xml",FileStorage::WRITE);
-    fs_cluster << "centers" << trainer.cluster_centers;
-    fs_cluster.release();
+
+    trainer.vocabulary_bowtrainer();
 
     vector<Mat> vlad_list;
-    trainer.vlad_encode(vlad_list);
+    //trainer.vlad_encode(vlad_list);
 
-    FileStorage fs("vlad.xml",FileStorage::WRITE);
+    trainer.vlad_quanlization(vlad_list);
+
     Mat vlad;
     vconcat(vlad_list,vlad);
 
-    fs << "vald" << vlad;
-    fs.release();
 
     //retrieval
+    string test_image = "/home/book/Pictures/test1.jpg";
     Mat img = imread(image_file_list[0]);
     string retrieved_image;
-    trainer.retrieval(img,vlad,retrieved_image);
-
+    //trainer.retrieval(img,vlad,retrieved_image);
+    trainer.retireval_bow(img,vlad,retrieved_image);
     return 0;
 }

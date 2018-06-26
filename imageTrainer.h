@@ -16,9 +16,15 @@ public:
     void bof_encode(std::vector<cv::Mat> &bof);
     void vlad_encode(std::vector<cv::Mat> &vlad);
     void vlad_encode(const cv::Mat &img,cv::Mat &vlad); // vlad encode image
+
+    void vlad_quanlization(const cv::Mat &img,cv::Mat &vlad);
+    void vlad_quanlization(std::vector<cv::Mat> &vlad);
     void extract_sift(); // Extract sift feature
     void vocabulary_kmeans(); // Get visual vocabulary using k-means algorithm
-    void retrieval(const cv::Mat &img,const cv::Mat &vlad_list,std::string &retrieved_image);  
+    void vocabulary_bowtrainer();
+    void retrieval(const cv::Mat &img,const cv::Mat &vlad_list,std::string &retrieved_image);
+
+    void retireval_bow(const cv::Mat &img,const cv::Mat &vlad_list,std::string &retrieved_image);
 
 public:
     cv::Mat vocabulary; // Visual vocabulary
