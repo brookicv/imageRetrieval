@@ -17,8 +17,10 @@ set(CMAKE_VERBOSE_MAKEFILE on) # Output compile commandline, VERBOSE=1
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/vlfeat)
 include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(/usr/include)
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/vlfeat/lib)
+link_directories(/usr/lib)
 
 aux_source_directory(. DIR_SRCS)
 
@@ -28,4 +30,4 @@ add_executable(bof bof_retrieval.cpp imageTrainer.cpp)
 
 #target_link_libraries(main libvl.so ${OpenCV_LIBS}) # 
 #target_link_libraries(kmeans libvl.so ${OpenCV_LIBS})
-target_link_libraries(bof ${OpenCV_LIBS})
+target_link_libraries(bof ${OpenCV_LIBS} libuuid.so)

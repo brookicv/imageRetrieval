@@ -8,6 +8,7 @@
 
 #include <opencv2/flann/kdtree_index.h>
 
+#include <uuid/uuid.h>
 
 using namespace std;
 using namespace cv;
@@ -46,17 +47,33 @@ void kd_test(){
 
 int main()
 {
-    /*const string image_folder = "/home/brook/git_folder/image_retrieval/images";
+    const string image_folder = "/home/brook/git_folder/image_retrieval/images";
     vector<string> image_file_list;
     get_file_name_list(image_folder,image_file_list);
 
-    ImageTrainer trainer(200,image_file_list);
+    ImageTrainer trainer(20,image_file_list);
 
     trainer.extract_sift();
-    trainer.vocabulary_kmeans();*/
+     trainer.vocabulary_kmeans();
+    
+    FileStorage fs_cluster("centers.xml",FileStorage::WRITE);
+    fs_cluster << "centers" << trainer.cluster_centers;
+    fs_cluster.release();
 
-    kd_test();
-    
-    
+    vector<Mat> vlad_list;
+    trainer.vlad_encode(vlad_list);
+
+    FileStorage fs("vlad.xml",FileStorage::WRITE);
+    Mat vlad;
+    vconcat(vlad_list,vlad);
+
+    fs << "vald" << vlad;
+    fs.release();
+
+    //retrieval
+    Mat img = imread(image_file_list[0]);
+    string retrieved_image;
+    trainer.retrieval(img,vlad,retrieved_image);
+
     return 0;
 }

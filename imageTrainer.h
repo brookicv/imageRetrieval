@@ -17,14 +17,16 @@ public:
     void vlad_encode(std::vector<cv::Mat> &vlad);
     void vlad_encode(const cv::Mat &img,cv::Mat &vlad); // vlad encode image
     void extract_sift(); // Extract sift feature
-    void vocabulary_kmeans(); // Get visual vocabulary using k-means algorithm  
+    void vocabulary_kmeans(); // Get visual vocabulary using k-means algorithm
+    void retrieval(const cv::Mat &img,const cv::Mat &vlad_list,std::string &retrieved_image);  
 
+public:
+    cv::Mat vocabulary; // Visual vocabulary
+    cv::Mat cluster_centers; // center of k cluster
 private:
     const int k; // number of k-means clustering
     std::vector<std::string> image_file_list;
-    std::vector<cv::Mat> feature_list; // All feature of images 
-    cv::Mat vocabulary; // Visual vocabulary
-    cv::Mat cluster_centers; // center of k cluster
+    std::vector<cv::Mat> feature_list; // All feature of images  
     std::vector<int> labels;  // the index of cluster that one feature closest
 };
 

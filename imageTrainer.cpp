@@ -1,14 +1,16 @@
 
 #include "imageTrainer.h"
 #include <opencv2/core.hpp>
+#include <opencv2/flann/kdtree_index.h>
 
 using namespace std;
 using namespace cv;
 
 void ImageTrainer::extract_sift(){
     // 提取图像的sift
-    int count = 0;
     Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create();
+
+    int count = 0;
     for(const string & file: image_file_list){
         cout << "Extracte sift feature #" << file << endl;
         vector<KeyPoint> kpts;
@@ -16,11 +18,11 @@ void ImageTrainer::extract_sift(){
         Mat img = imread(file);
         CV_Assert(!img.empty());
         sift->detectAndCompute(img,noArray(),kpts,des);
-        feature_list.push_back(des);
-        count ++ ;
-        if(count > 20) {
-            break;
-        }
+        Mat norm_des(des.rows,des.cols,CV_32FC1,Scalar::all(0));
+        normalize(des,norm_des,1,0,NormTypes::NORM_L2,CV_32FC1);
+        feature_list.push_back(norm_des);
+        count ++;
+        if(count == 20) break ;
     }
 }
 
@@ -84,7 +86,46 @@ void ImageTrainer::vlad_encode(const Mat &img,Mat &vlad){
     Mat descriptor;
 
     sift->detectAndCompute(img,noArray(),kpts,descriptor);
+    FileStorage fs("des.xml",FileStorage::WRITE);
+    fs << "des" << descriptor;
+    fs.release();
 
-    
+    // Build kd-tree
+    flann::Index kdtree(cluster_centers,flann::KDTreeIndexParams());
 
+    // Search
+    vector<float> dist;
+
+    // vlad-encode
+    Mat vlad_encode(k,descriptor.cols,CV_32FC1,Scalar::all(0));
+    for(int i = 0; i < descriptor.rows; i ++) {
+        vector<int> label;
+        kdtree.knnSearch(descriptor.row(i),label,dist,3);
+        cout << "Quantization:" << label[0] << " Distance:" << dist[0] << endl;
+
+        // vlad-encode
+        Mat item;
+        subtract(descriptor.row(i),cluster_centers.row(label[0]),item);
+        add(vlad_encode.row(label[0]),item,vlad_encode.row(label[0]));
+    }
+
+    vlad_encode /= norm(vlad_encode,NORM_L2); // l2 normalization
+    vlad = vlad_encode.reshape(0,1);
+}
+
+void ImageTrainer::retrieval(const Mat &img,const Mat &vlad_list,std::string &retrieved_image){
+    Mat vlad;
+    vlad_encode(img,vlad);
+
+    // build kd-tree
+    flann::Index kdtree(vlad_list,flann::KDTreeIndexParams());
+
+    //search
+    vector<int> result;
+    vector<float> dist;
+    kdtree.knnSearch(vlad,result,dist,3);
+
+    retrieved_image = image_file_list[result[0]];
+
+    cout << "retrieved image:" << retrieved_image << "distance:" << dist[0] << endl;
 }
