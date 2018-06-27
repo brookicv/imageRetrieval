@@ -10,8 +10,6 @@ using namespace cv;
 void ImageTrainer::extract_sift(){
     // 提取图像的sift
     Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create();
-
-    int count = 0;
     for(const string & file: image_file_list){
         cout << "Extracte sift feature #" << file << endl;
         vector<KeyPoint> kpts;
@@ -22,8 +20,6 @@ void ImageTrainer::extract_sift(){
         //Mat norm_des(des.rows,des.cols,CV_32FC1,Scalar::all(0));
         //normalize(des,norm_des,1,0,NormTypes::NORM_L2,CV_32FC1);
         feature_list.push_back(des);
-        count ++;
-        if(count == 20) break ;
     }
 }
 
@@ -38,7 +34,7 @@ void ImageTrainer::vocabulary_kmeans(){
 
 void ImageTrainer::vocabulary_bowtrainer(){
 
-    BOWKMeansTrainer bowtrainer(20);
+    BOWKMeansTrainer bowtrainer(200);
 
     Mat mat;
     vconcat(feature_list,mat);
