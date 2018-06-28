@@ -12,38 +12,6 @@
 using namespace std;
 using namespace cv;
 
-void kd_test(){
-
-    // Build kd tree
-    Point2f p1(2,3),   p2(5,4),p3(9, 6),  p4(4,7),  p5(8,1),p6(7, 2);
-    vector<cv::Point2f> source;
-    source.push_back(p1);
-    source.push_back(p2);
-    source.push_back(p3);
-    source.push_back(p4);
-    source.push_back(p5);
-    source.push_back(p6);
-    source.push_back(Point2f(1,1.5));
-    flann::KDTreeIndexParams indexParams(2);
-    flann::Index kdtree(cv::Mat(source).reshape(1), indexParams);
-
-    // Query
-    vector<float> query;
-    Point2f pt(0.1,1);
-    query.push_back(pt.x);
-    query.push_back(pt.y);
-    int k = 4; //number of nearest neighbors
-    vector<int> indices(k);//找到点的索引
-    vector<float> dists(k);
-
-    flann::SearchParams params(128);
-    kdtree.knnSearch(query, indices, dists, k,params);
-    cout<<indices[0]<< " : dist->" << dists[0] << " point:" << source[indices[0]] << endl;
-    cout<<indices[1]<<" : dist->" << dists[1] << " point:" << source[indices[1]] << endl;
-    cout<<indices[2]<<" : dist->" << dists[2] << " point:" << source[indices[2]] << endl;
-    cout<<indices[3]<<" : dist->" << dists[3] << " point:" << source[indices[3]] << endl;
-}
-
 void vocabulary_training(const vector<string> &image_file_list,int k,Mat &vocabulary,vector<Mat> &features){
     // 提取图像的sift
     Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create();
@@ -60,8 +28,6 @@ void vocabulary_training(const vector<string> &image_file_list,int k,Mat &vocabu
         features.push_back(des);
 
         index ++ ;
-
-        if(index >= 20) break ;
     }
 
     cout << "Extract #" << index << "# images sift feature" << endl;
@@ -150,25 +116,48 @@ double retrieval_vlad(const Mat &img,const Mat &vocabulary,flann::Index &retriev
     return distances[0];
 }
 
-int main()
-{
-    const string image_folder = "/home/brook/git_folder/image_retrieval/images";
-    //const string image_folder = "/home/book/git/imageRetrieval/images";
+void training(const string &image_folder,const string &data_folder,int k) {
+
     vector<string> image_file_list;
     get_file_name_list(image_folder,image_file_list);
 
     Mat vocabulary;
     vector<Mat> features;
-    vocabulary_training(image_file_list,10,vocabulary,features);
+    stringstream ss;
+    ss << data_folder << "/" << "vocabulary.xml";
+    vocabulary_training(image_file_list,k,vocabulary,features);
+
+    FileStorage fs_voc(ss.str(),FileStorage::WRITE);
+    fs_voc << "vocabulary" << vocabulary;
+    fs_voc.release();
 
     vector<Mat> vlad_list;
     vlad_quantization(features,vocabulary,vlad_list);
+    ss.str("");
+    ss << data_folder << "/" << "vlad.xml";
+    FileStorage fs_vlad(ss.str(),FileStorage::WRITE);
+    Mat vlad;
+    vconcat(vlad_list,vlad);
+    fs_vlad << "vlad" << vlad;
+    fs_vlad.release();
 
+    ss.str("");
+    ss << data_folder << "/" << "index.xml";
     flann::Index retrieval_index;
-    build_index(vlad_list,retrieval_index);
+    build_index(vlad_list,retrieval_index,ss.str());
+}
 
-    Mat img = imread("/home/brook/git_folder/image_retrieval/test.png");
-    int index;
-    double dist = retrieval_vlad(img,vocabulary,retrieval_index,index);
+int main()
+{
+    //const string image_folder = "/home/brook/git_folder/image_retrieval/images";
+    const string image_folder = "/home/test/git/imageRetrieval/images";
+    const string data_folder = "../data";
+
+    int k  = 200;
+    training(image_folder,data_folder,k);
+
+    //Mat img = imread("/home/brook/git_folder/image_retrieval/test.png");
+    //int index;
+    //double dist = retrieval_vlad(img,vocabulary,retrieval_index,index);
     return 0;
 }
