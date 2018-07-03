@@ -8,13 +8,14 @@
 #include <opencv2/flann/kdtree_index.h>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
+#include <fstream>
 
 using namespace std;
 using namespace cv;
 
 void vocabulary_training(const vector<string> &image_file_list,int k,Mat &vocabulary,vector<Mat> &features){
     // 提取图像的sift
-    Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create();
+    Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create(0,3,0.16,10);
     int index = 1;
     for(const string & file: image_file_list){
         cout << "Extract sift feature " << index << "th image" << "#" <<  file << endl;
@@ -121,11 +122,15 @@ void training(const string &image_folder,const string &data_folder,int k) {
     vector<string> image_file_list;
     get_file_name_list(image_folder,image_file_list);
 
+    TickMeter tm;
     Mat vocabulary;
     vector<Mat> features;
     stringstream ss;
     ss << data_folder << "/" << "vocabulary.xml";
+    tm.start();
     vocabulary_training(image_file_list,k,vocabulary,features);
+    tm.stop();
+    cout << "k-means to get cluster costs time:" << tm.getTimeSec() << "s." << endl;
 
     FileStorage fs_voc(ss.str(),FileStorage::WRITE);
     fs_voc << "vocabulary" << vocabulary;
@@ -142,7 +147,7 @@ void training(const string &image_folder,const string &data_folder,int k) {
     fs_vlad.release();
 
     ss.str("");
-    ss << data_folder << "/" << "index.xml";
+    ss << data_folder << "/" << "search.index";
     flann::Index retrieval_index;
     build_index(vlad_list,retrieval_index,ss.str());
 }
@@ -150,10 +155,10 @@ void training(const string &image_folder,const string &data_folder,int k) {
 int main()
 {
     //const string image_folder = "/home/brook/git_folder/image_retrieval/images";
-    const string image_folder = "/home/test/git/imageRetrieval/images";
+    const string image_folder = "/home/test/git/jpg";
     const string data_folder = "../data";
 
-    int k  = 200;
+    int k  = 1000;
     training(image_folder,data_folder,k);
 
     //Mat img = imread("/home/brook/git_folder/image_retrieval/test.png");
