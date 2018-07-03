@@ -46,7 +46,7 @@ void kd_test(){
 
 void vocabulary_training(const vector<string> &image_file_list,int k,Mat &vocabulary,vector<Mat> &features){
     // 提取图像的sift
-    Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create();
+    Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create(0,3,0.1,10);
     int index = 1;
     for(const string & file: image_file_list){
         cout << "Extract sift feature " << index << "th image" << "#" <<  file << endl;
@@ -171,4 +171,4 @@ int main()
     int index;
     double dist = retrieval_vlad(img,vocabulary,retrieval_index,index);
     return 0;
-}
+}  
