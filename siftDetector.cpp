@@ -8,22 +8,29 @@ SiftDetector::SiftDetector(double in_peak_threshold,double in_edge_threshold): p
 
 void SiftDetector::detect_and_compute(const cv::Mat &img, std::vector<VlSiftKeypoint> &kpts,
                                       std::vector<std::vector<float>> &descriptors, bool root_sift) {
-    // Only accept gray image
-    assert(img.channels() == 1);
-
-    VlSiftFilt *vl_sift = vl_sift_new(img.cols,img.rows,0,3,0);
+    // Only accept gray or rgb image
+    assert(img.channels() == 1 || img.channels() == 3);
+    Mat gray;
+    if(img.channels() == 3){
+        cvtColor(img,gray,CV_RGB2GRAY);
+    }else{
+        gray = img;
+    }
+    VlSiftFilt *vl_sift = vl_sift_new(img.cols,img.rows,-1,3,0);
     vl_sift_set_edge_thresh(vl_sift,edge_threshold);
     vl_sift_set_peak_thresh(vl_sift,peak_threshold);
 
 
     Mat float_img;
-    img.convertTo(float_img,CV_32F);
+    gray.convertTo(float_img,CV_32F);
 
     auto data = (vl_sift_pix*)float_img.data;
     vl_sift_extract(vl_sift,data,kpts,descriptors);
     if(root_sift){
         convert_sift_to_root_sift(descriptors);
     }
+
+    vl_sift_delete(vl_sift);
 }
 
 void SiftDetector::vl_sift_extract(VlSiftFilt *vl_sift, vl_sift_pix *data, std::vector<VlSiftKeypoint> &kpts,
