@@ -26,7 +26,7 @@ aux_source_directory(. DIR_SRCS)
 
 #add_executable(main imageRetrieval.cpp)
 #add_executable(kmeans kmeans.cpp)
-add_executable(vlad vlad_retrieval.cpp)
+add_executable(vlad vlad_retrieval.cpp siftDetector.cpp)
 
 #target_link_libraries(main libvl.so ${OpenCV_LIBS}) # 
 #target_link_libraries(kmeans libvl.so ${OpenCV_LIBS})
