@@ -15,11 +15,7 @@ using namespace cv;
 
 void vocabulary_training(const vector<string> &image_file_list,int k,Mat &vocabulary,vector<Mat> &features){
     // 提取图像的sift
-<<<<<<< HEAD:bof_retrieval.cpp
     Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create(0,3,0.1,10);
-=======
-    Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create(0,3,0.16,10);
->>>>>>> ebc21ffefcc2f6fb162e54a2cc0def3a494b3660:vlad_retrieval.cpp
     int index = 1;
     for(const string & file: image_file_list){
         cout << "Extract sift feature " << index << "th image" << "#" <<  file << endl;
