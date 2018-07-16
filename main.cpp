@@ -47,7 +47,7 @@ void sift_test(){
     waitKey();
 }
 
-void extract_features(vector<string> image_file_list,vector<Mat> features){
+void extract_features(vector<string> image_file_list,vector<Mat> &features){
 
     int index = 1;
     int count = 0;
@@ -92,6 +92,7 @@ void vocabulary(const vector<Mat> &features){
     int i = 0, j = 0;
     for(const Mat &m : features) {
         voc.transform(m,v1);
+        j = 0;
         for(const Mat &m1 : features){
             voc.transform(m1,v2);
             double score = voc.score(v1,v2);
@@ -107,6 +108,46 @@ void vocabulary(const vector<Mat> &features){
     cout << "Done" << endl;
 }
 
+void database(const vector<Mat> &features,vector<string> &image_file_list){
+    // load the vocabulary from disk
+    DBoW3::Vocabulary voc("small_voc.yml.gz");
+
+    DBoW3::Database db(voc, false, 0); // false = do not use direct index
+    // (so ignore the last param)
+    // The direct index is useful if we want to retrieve the features that
+    // belong to some vocabulary node.
+    // db creates a copy of the vocabulary, we may get rid of "voc" now
+
+    // add images to the database
+    for(size_t i = 0; i < features.size(); i++)
+        db.add(features[i]);
+
+    cout << "... done!" << endl;
+
+    cout << "Database information: " << endl << db << endl;
+
+    // and query the database
+    cout << "Querying the database: " << endl;
+    DBoW3::QueryResults ret;
+    for(size_t i = 0; i < features.size(); i++)
+    {
+        db.query(features[i], ret, 4);
+
+        // ret[0] is always the same image in this case, because we added it to the
+        // database. ret[1] is the second best match.
+
+        cout << "Searching for Image " << i << ". " << ret << endl;
+    }
+
+    cout << endl;
+
+    // we can save the database. The created file includes the vocabulary
+    // and the entries added
+    cout << "Saving database..." << endl;
+    db.save("small_db.yml.gz");
+    cout << "... done!" << endl;
+}
+
 
 int main() 
 {
@@ -116,5 +157,7 @@ int main()
     vector<Mat> features;
     extract_features(image_file_list,features);
     vocabulary(features);
+    
+    database(features,image_file_list);
     return 0;
 }
