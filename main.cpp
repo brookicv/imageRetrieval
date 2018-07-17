@@ -59,7 +59,7 @@ void extract_features(vector<string> image_file_list,vector<Mat> &features){
             continue;
         }
 
-        cout << "Extract #" << index << "st image #" << str << " features" << endl;
+        cout << "Extract feature from #" << index << "st image #" << str << endl;
         auto sift = xfeatures2d::SIFT::create(0,3,0.2,10);
         vector<KeyPoint> kpts;
         Mat des;
@@ -78,7 +78,7 @@ void vocabulary(const vector<Mat> &features){
     const int K = 9;
     const int L = 3;
     const DBoW3::WeightingType weight = DBoW3::TF_IDF;
-    const DBoW3::ScoringType score = DBoW3::L1_NORM;
+    const DBoW3::ScoringType score = DBoW3::L2_NORM;
 
     DBoW3::Vocabulary voc(K,L,weight,score);
     cout << "Creating a small " << K << "^" << L << " vocabulary..." << endl;
@@ -87,7 +87,7 @@ void vocabulary(const vector<Mat> &features){
     
     cout << "Vocabulary infomation: " << endl << voc << endl << endl;
 
-    cout << "Matching images against themselves (0 low,1 hight): " << endl;
+    /*cout << "Matching images against themselves (0 low,1 hight): " << endl;
     DBoW3::BowVector v1,v2;
     int i = 0, j = 0;
     for(const Mat &m : features) {
@@ -100,7 +100,7 @@ void vocabulary(const vector<Mat> &features){
             j ++;
         }
         i ++;
-    }
+    }*/
 
     // save the vocabulary to disk
     cout << endl << "Saving vocabulary..." << endl;
@@ -129,7 +129,7 @@ void database(const vector<Mat> &features,vector<string> &image_file_list){
     // and query the database
     cout << "Querying the database: " << endl;
     DBoW3::QueryResults ret;
-    for(size_t i = 0; i < features.size(); i++)
+    /*for(size_t i = 0; i < features.size(); i++)
     {
         db.query(features[i], ret, 4);
 
@@ -137,7 +137,9 @@ void database(const vector<Mat> &features,vector<string> &image_file_list){
         // database. ret[1] is the second best match.
 
         cout << "Searching for Image " << i << ". " << ret << endl;
-    }
+    }*/
+    db.query(features[0],ret,4);
+    cout << "Searching for Image " << ret << endl;
 
     cout << endl;
 
@@ -151,7 +153,7 @@ void database(const vector<Mat> &features,vector<string> &image_file_list){
 
 int main() 
 {
-    const string image_folder = "/home/book/git/imageRetrieval/images";
+    const string image_folder = "/home/test/git/imageRetrieval/images";
     vector<string> image_file_list;
     get_file_name_list(image_folder,image_file_list);
     vector<Mat> features;
