@@ -84,11 +84,3 @@ void SiftDetector::convert_sift_to_root_sift(std::vector<std::vector<float>> &de
         }
     }
 }
-
-void SiftDetector::save_sift(std::ofstream &out_file, const std::vector<std::vector<float>> &descriptors) {
-
-}
-
-void SiftDetector::load_sift(std::ifstream &in_file, std::vector<std::vector<float>> &desceriptors) {
-
-}

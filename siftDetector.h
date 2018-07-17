@@ -24,8 +24,8 @@ class SiftDetector {
 public:
     explicit SiftDetector(double in_peak_threshold = 5,double in_edge_threshold = 5);
     void detect_and_compute(const cv::Mat &img,std::vector<VlSiftKeypoint> &kpts,std::vector<std::vector<float>> &descriptors,bool root_sift = false);
-    static void save_sift(std::ofstream &out_file, const std::vector<std::vector<float>> &descriptors);
-    static void load_sift(std::ifstream &in_file,std::vector<std::vector<float>> &desceriptors);
+    static void save_sift(const std::string &filename, const std::vector<std::vector<float>> &descriptors);
+    static void load_sift(const std::string &filename,std::vector<std::vector<float>> &desceriptors);
 
 private:
     /*

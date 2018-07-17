@@ -26,18 +26,30 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/vlfeat)
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(/usr/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/DBow3/src)
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/vlfeat/lib)
 link_directories(/usr/lib)
+
+ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/DBow3/src)
 
 aux_source_directory(. DIR_SRCS)
 
 #add_executable(main imageRetrieval.cpp)
 #add_executable(kmeans kmeans.cpp)
+<<<<<<< HEAD
 add_executable(vlad vlad_retrieval.cpp siftDetector.cpp)
+=======
+#add_executable(vlad vlad_retrieval.cpp)
+>>>>>>> bf258976706e379c2a01c278f0c2a751856f2df0
 add_executable(main main.cpp siftDetector.cpp)
 
 #target_link_libraries(main libvl.so ${OpenCV_LIBS}) # 
 #target_link_libraries(kmeans libvl.so ${OpenCV_LIBS})
+<<<<<<< HEAD
 target_link_libraries(vlad ${OpenCV_LIBS} libvl.so)
 target_link_libraries(main ${OpenCV_LIBS} libvl.so)
+=======
+#target_link_libraries(vlad ${OpenCV_LIBS})
+target_link_libraries(main ${OpenCV_LIBS} libvl.so DBow3)
+>>>>>>> bf258976706e379c2a01c278f0c2a751856f2df0
