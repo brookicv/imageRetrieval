@@ -3,6 +3,8 @@
 #include <opencv2/xfeatures2d/nonfree.hpp>
 
 #include <opencv2/flann.hpp>
+#include <sys/sysinfo.h>
+#include <unistd.h>
 
 #include "DBoW3.h"
 #include "utils.h"
@@ -16,6 +18,45 @@ extern "C" {
 
 using namespace std;
 using namespace cv;
+
+void cpu(int i){
+    cpu_set_t mask; // cpu_set_t 代表一个cpu集合
+    CPU_ZERO(&mask);
+    CPU_SET(i,&mask);
+
+    if(pthread_setaffinity_np(pthread_self(),sizeof(mask),&mask) < 0){
+        cout << "Set thread affinity failed" << endl;
+    }
+  
+    cpu_set_t get;
+     
+    int num = sysconf(_SC_NPROCESSORS_CONF);
+    cout << "System has " << num << " processors" << endl;
+
+    CPU_ZERO(&mask); // Clear a cpu set
+    CPU_SET(i,&mask); // Put cpu_myid to mask set
+
+    if (sched_setaffinity(0, sizeof(mask), &mask) == -1)
+    {
+        printf("warning: could not set CPU affinity, continuing...\n");
+    }
+
+    while (true)
+    {
+        CPU_ZERO(&get);
+        if (sched_getaffinity(0, sizeof(get), &get) == -1)
+        {
+                printf("warning: cound not get cpu affinity, continuing...\n");
+        }
+        for (int i = 0; i < num; i++)
+        {
+                if (CPU_ISSET(i, &get))
+                {
+                        printf("this process %d is running processor : %d\n",getpid(), i);
+                }
+        }
+    }
+}
 
 void sift_test(){
     const string file = "../1.jpg";
@@ -151,7 +192,7 @@ void database(const vector<Mat> &features,vector<string> &image_file_list){
 }
 
 
-int main() 
+int main(int argc ,char* argv[]) 
 {
     const string image_folder = "/home/test/git/imageRetrieval/images";
     vector<string> image_file_list;
@@ -159,7 +200,7 @@ int main()
     vector<Mat> features;
     extract_features(image_file_list,features);
     vocabulary(features);
-    
     database(features,image_file_list);
+    
     return 0;
 }
