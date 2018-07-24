@@ -194,7 +194,7 @@ void database(const vector<Mat> &features,vector<string> &image_file_list){
 
 int main(int argc ,char* argv[]) 
 {
-    const string image_folder = "/home/test/git/imageRetrieval/images";
+    const string image_folder = "/home/test/git/jpg";
     vector<string> image_file_list;
     get_file_name_list(image_folder,image_file_list);
     vector<Mat> features;

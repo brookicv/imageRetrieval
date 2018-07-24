@@ -39,8 +39,10 @@ aux_source_directory(. DIR_SRCS)
 #add_executable(kmeans kmeans.cpp)
 #add_executable(vlad vlad_retrieval.cpp)
 add_executable(main main.cpp siftDetector.cpp)
+add_executable(dbow dbow3_retrieval.cpp)
 
 #target_link_libraries(main libvl.so ${OpenCV_LIBS}) # 
 #target_link_libraries(kmeans libvl.so ${OpenCV_LIBS})
 #target_link_libraries(vlad ${OpenCV_LIBS})
 target_link_libraries(main ${OpenCV_LIBS} libvl.so DBow3)
+target_link_libraries(dbow ${OpenCV_LIBS} DBow3)

@@ -2,6 +2,5 @@
 .idea
 build
 images
-data
 cmake-build-debug
 vlfeat/lib/
