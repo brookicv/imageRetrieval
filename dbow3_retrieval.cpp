@@ -23,10 +23,11 @@ void extract_features(const vector<string> &image_file_list,vector<Mat> &feature
         }
 
         cout << "Extract feature from #" << index << "st image #" << str << endl;
-        auto sift = xfeatures2d::SIFT::create(0,3,0.2,10);
+        //auto sift = xfeatures2d::SIFT::create(0,3,0.2,10);
+        auto fdetector=cv::xfeatures2d::SURF::create(400, 4, 2);
         vector<KeyPoint> kpts;
         Mat des;
-        sift->detectAndCompute(img,noArray(),kpts,des);
+        fdetector->detectAndCompute(img,noArray(),kpts,des);
         features.emplace_back(des); 
         count += des.rows;
         index ++ ;
@@ -95,7 +96,7 @@ void save_image_file_list(const vector<string> &image_file_list,const string &da
 
 void load_image_file_list(vector<string> &image_file_list,const string &data_folder){
     stringstream ss;
-    ss << data_folder << "image_list.txt";
+    ss << data_folder << "/image_list.txt";
 
     ifstream ifs(ss.str());
     string file;
@@ -107,39 +108,144 @@ void load_image_file_list(vector<string> &image_file_list,const string &data_fol
 void training(const vector<string> &image_file_list,const string &data_folder,int k,int l){
 
     vector<Mat> features;
-    //extract_features(image_file_list,features);
+    extract_features(image_file_list,features);
 
-    //vocabulary(features,data_folder,k,l);
+    vocabulary(features,data_folder,k,l);
 
-    //database(features,data_folder);
+    database(features,data_folder);
 
     save_image_file_list(image_file_list,data_folder);
 }
 
-void retrieval(const Mat &img,const DBoW3::Database &db,DBoW3::QueryResults ql,int max_resuts){
+void retrieval(const Mat &img,const DBoW3::Database &db,DBoW3::QueryResults &ql,int max_resuts){
     
-    auto sift = xfeatures2d::SIFT::create(0,3,0.2,10);
+    //auto fdetector=cv::xfeatures2d::SURF::create(400, 4, 2);
+    auto fdetector = xfeatures2d::SIFT::create(0,3,0.2,10);
     vector<KeyPoint> kpts;
     Mat des;
-    sift->detectAndCompute(img,noArray(),kpts,des);
+    fdetector->detectAndCompute(img,noArray(),kpts,des);
 
     db.query(des,ql,max_resuts);
+}
+
+double average_presicion(const string &filename,DBoW3::QueryResults &ql,const vector<string> image_file_list,int max_resuts){
+    
+    auto group = filename.substr(1,3);
+
+    auto f = [&image_file_list](const string &group)->int{
+        int count = 0;
+        for(const string &str : image_file_list){
+            auto pos = str.find_last_of('/');
+            auto s = str.substr(pos+2,3);
+
+            if(s == group){
+                count ++;
+            }
+        }
+        return count;
+    };
+
+    auto count = f(group);
+    double score = 0;
+    int a = 1;
+    for(int i = 0; i < max_resuts; i ++){
+        auto str = image_file_list[ql[0].Id];
+        auto pos = str.find_last_of('/');
+        auto s = str.substr(pos+2,3);
+
+        if(s == group){
+            score += ((double)a) / (i + 1);
+            a ++;
+        }
+    }
+
+    return score / count;
 }
 
 int main()
 {
     const string image_folder = "/home/test/git/jpg";
-    const string data_folder = "../data";
+    const string data_folder = "/home/test/git/imageRetrieval/data";
     const string database_name = "small_db.yml.gz";
-
-    //stringstream ss;
-    //ss << data_folder << "/" << database_name;
-    //DBoW3::Database db(ss.str());
 
     vector<string> image_file_list;
     get_file_name_list(image_folder,image_file_list);
 
     int k = 9;
     int l = 3;
-    training(image_file_list,data_folder,k,l);
+    //training(image_file_list,data_folder,k,l);
+    /*const string voc_path = "/home/test/git/imageRetrieval/data/orbvoc.dbow3";
+    DBoW3::Vocabulary voc(voc_path);
+    DBoW3::Database db(voc,false);
+
+    vector<Mat> features;
+    extract_features(image_file_list,features);
+    for(const Mat & m : features){
+        db.add(m);
+    }
+
+    stringstream ss;
+    ss << data_folder << "orbdb.yml.bz";
+    db.save(ss.str());*/
+
+    stringstream ss;
+    ss << data_folder << "/small_db.yml-sift.gz";
+    DBoW3::Database db(ss.str());
+    cout << db.size() << endl;
+    const string test_folder = "/home/test/git/test_jpg";
+    vector<string> test_file_list;
+    get_file_name_list(test_folder,test_file_list);
+
+    Mat img = imread(test_file_list[10]);
+    DBoW3::QueryResults ql;
+    retrieval(img,db,ql,10);
+    cout << ql << endl;
+
+    cout << test_file_list[10] << endl;
+    for(int i = 0; i < 10; i ++) {
+         cout << image_file_list[ql[i].Id] << endl;
+    }
+   
+
+
+    /*load_image_file_list(image_file_list,data_folder);
+    stringstream ss;
+    ss << data_folder << "/" << database_name;
+    DBoW3::Database db(ss.str());
+
+    const string test_folder = "/home/test/git/test_jpg";
+    dirent *file;
+    DIR* dir = opendir(test_folder.c_str());
+
+    ss.str("");
+    DBoW3::QueryResults ql;
+    int max_resuts = 10;
+
+    double ap = 0.0;
+    int count = 0;
+    while((file = readdir(dir)) != nullptr){
+
+        string filename(file->d_name);
+        if(filename == string(".") || filename == string("..")){
+            continue;
+        }
+
+        ss.str("");
+        ss << test_folder << "/" << file->d_name;
+        Mat img = imread(ss.str());
+        retrieval(img,db,ql,1);
+        cout << ql << endl;
+        auto group = string(file->d_name).substr(1,3);
+        if(ql[0].Score > 0.5){
+            auto str = image_file_list[ql[0].Id];
+            auto pos = str.find_last_of('/');
+            auto s = str.substr(pos+2,3);
+
+            if(s == group){
+                count ++;
+            }
+        }
+    }
+    cout << count << endl;*/
+    return 0;
 }
