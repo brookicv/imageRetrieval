@@ -29,6 +29,11 @@ BoW模型最初是为解决文档建模问题而提出的，因为文本本身�
 
 ### normalize
 
+`norm` 计算范数
+`reshape` 改变矩阵的形状（包括通道个数）
+ - cn	New number of channels. If the parameter is 0, the number of channels remains the same.
+ - rows	New number of rows. If the parameter is 0, the number of rows remains the same. 
+
 ```
 vector<double> positiveData = { 2.0, 8.0, 10.0 };
     vector<double> normalizedData_l1, normalizedData_l2, normalizedData_inf, normalizedData_minmax;
@@ -56,7 +61,7 @@ vector<double> positiveData = { 2.0, 8.0, 10.0 };
     // 2.0      0.0     (shift to left border)
     // 8.0      0.75    (6.0/8.0)
     // 10.0     1.0     (shift to right border)
-    normalize(positiveData, normalizedData_minmax, 1.0, 0.0, NORM_MINMAX);
+    normalipositiveData, normalizedData_minmax, 1.0, 0.0, NORM_MINMAX);
 ```
 **注意对矩阵的归一化和对其行（列）向量归一化的区别**
 
@@ -205,3 +210,9 @@ bool Vocabulary::save(const std::string &filename)
     return true;
 }
 ```
+
+https://blog.csdn.net/TTdreamloong/article/details/80991161
+
+http://blog.sciencenet.cn/blog-713652-792911.html
+
+https://blog.csdn.net/ttdreamloong/article/details/79216937
