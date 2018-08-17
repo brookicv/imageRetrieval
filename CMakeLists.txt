@@ -27,22 +27,16 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/vlfeat)
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(/usr/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/DBow3/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/vlfeat/lib)
 link_directories(/usr/lib)
 
 ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/DBow3/src)
+ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/DBow3/test)
+ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-aux_source_directory(. DIR_SRCS)
 
-#add_executable(main imageRetrieval.cpp)
-#add_executable(kmeans kmeans.cpp)
-#add_executable(vlad vlad_retrieval.cpp)
-add_executable(main main.cpp siftDetector.cpp)
-add_executable(dbow dbow3_retrieval.cpp)
+add_executable(main main.cpp)
 
-#target_link_libraries(main libvl.so ${OpenCV_LIBS}) # 
-#target_link_libraries(kmeans libvl.so ${OpenCV_LIBS})
-#target_link_libraries(vlad ${OpenCV_LIBS})
-target_link_libraries(main ${OpenCV_LIBS} libvl.so DBow3)
-target_link_libraries(dbow ${OpenCV_LIBS} DBow3)
+target_link_libraries(main ${OpenCV_LIBS} libvl.so DBow3 retrieval)
