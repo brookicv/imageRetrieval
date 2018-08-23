@@ -32,7 +32,7 @@ void Vocabulary::create(const std::vector<std::string> &imageFileList,int k)
 void Vocabulary::transform_bow(const cv::Mat &f,std::vector<int> &bow)
 {
     // Find the nearest center
-    Ptr<FlannBasedMatcher> matcher = FlannBasedMatcher::create();
+    auto matcher = DescriptorMatcher::create("FlannBased");
     vector<DMatch> matches;
     matcher->match(f,m_voc,matches);
 
@@ -47,7 +47,7 @@ void Vocabulary::transform_bow(const cv::Mat &f,std::vector<int> &bow)
 void Vocabulary::transform_vlad(const cv::Mat &f,cv::Mat &vlad)
 {
     // Find the nearest center
-    Ptr<FlannBasedMatcher> matcher = FlannBasedMatcher::create();
+    auto matcher = DescriptorMatcher::create("FlannBased");
     vector<DMatch> matches;
     matcher->match(f,m_voc,matches);
 

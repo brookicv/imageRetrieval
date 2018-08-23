@@ -1,6 +1,9 @@
 
 #include "RootSiftDetector.h"
 
+using namespace cv;
+using namespace std;
+
 RootSiftDetector::RootSiftDetector(){
 
     m_contrastThreshold         = 0.04;
@@ -31,7 +34,7 @@ void RootSiftDetector::reset(double edgeThreshold,double contrastThreshold){
 }
 
 
-void RootSiftDetector::rootSift(const cv::Mat &siftFeature,cv::Mat &rootSiftFeature) {
+void RootSiftDetector::transRootSift(const cv::Mat &siftFeature,cv::Mat &rootSiftFeature) {
 
     for(int i = 0; i < siftFeature.rows; i ++){
         // Conver to float type
@@ -55,5 +58,5 @@ void RootSiftDetector::detectAndCompute(const cv::Mat &img,std::vector<cv::KeyPo
         m_siftDetector->detectAndCompute(img,cv::noArray(),kpts,features);
     }
 
-    rootSift(features,rootSift);
+    transRootSift(features,rootSift);
 }

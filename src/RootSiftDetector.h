@@ -33,7 +33,7 @@ class RootSiftDetector {
     /*
         Transform sift descriptor to root sift descriptor
     */
-    void rootSift(const cv::Mat &siftFeature,cv::Mat &rootSiftFeature);
+    void transRootSift(const cv::Mat &siftFeature,cv::Mat &rootSiftFeature);
 
 private:
 
@@ -61,6 +61,6 @@ private:
         Sift detector
     */
     cv::Ptr<cv::xfeatures2d::SIFT> m_siftDetector;
-}
+};
 
 #endif

@@ -309,7 +309,7 @@ int Database::spatialVerificationRatio(const cv::Mat &des1,const cv::Mat &des2)
     const float minRatio = 1.f / 1.3f;
     const int k = 2;
 
-    Ptr<FlannBasedMatcher> matcher = FlannBasedMatcher::create();
+    auto matcher = DescriptorMatcher::create("FlannBased");
     vector<vector<DMatch>> knnMatches;
     matcher->knnMatch(des1, des2, knnMatches, k);
 

@@ -194,13 +194,42 @@ void database(const vector<Mat> &features,vector<string> &image_file_list){
 
 int main(int argc ,char* argv[]) 
 {
-    const string image_folder = "/home/test/git/jpg";
-    vector<string> image_file_list;
-    get_file_name_list(image_folder,image_file_list);
-    vector<Mat> features;
-    extract_features(image_file_list,features);
-    vocabulary(features);
-    database(features,image_file_list);
     
+    const string file = "/home/test/test_images/7.jpg";
+    Mat img = imread(file);
+
+    Mat tmp;
+    //resize(img,img,Size(256,256));
+    SiftDetector sift_detector;
+
+    vector<VlSiftKeypoint> kpts;
+    vector<vector<float>> descriptors;
+    sift_detector.detect_and_compute(img,kpts,descriptors);
+
+    vector<Mat> des;
+    for(int i = 0; i < descriptors.size(); i ++){
+        des.push_back(Mat(descriptors[i]));
+    }
+
+    for(int i = 0; i < kpts.size(); i ++) {
+        circle(img,Point(kpts[i].x,kpts[i].y),kpts[i].sigma,Scalar(0,0,255));
+    }
+
+    vector<KeyPoint> oc_kpts;
+    Mat oc_des;
+    Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create(0,3,0.06,5);
+    sift->detectAndCompute(img,noArray(),oc_kpts,oc_des);
+
+    for(int i = 0; i < oc_kpts.size(); i ++) {
+        circle(img,oc_kpts[i].pt,oc_kpts[i].size,Scalar(255,0,0));
+    }
+
+    cout << "vl_sift:" << descriptors.size() << endl;
+    cout << "opencv_sift-descriptors:" << oc_des.size() << endl;
+    
+    namedWindow("SIFT");
+    imshow("SIFT",img);
+
+    waitKey();
     return 0;
 }
