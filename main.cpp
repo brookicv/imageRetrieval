@@ -9,6 +9,10 @@
 #include "DBoW3.h"
 #include "utils.h"
 
+#include "Database.h"
+#include "Vocabulary.h"
+#include "Searcher.h"
+
 #include <string>
 extern "C" {
     #include <vl/kmeans.h>
@@ -195,41 +199,43 @@ void database(const vector<Mat> &features,vector<string> &image_file_list){
 int main(int argc ,char* argv[]) 
 {
     
-    const string file = "/home/test/test_images/7.jpg";
-    Mat img = imread(file);
+    const string path = "/home/test/projects/imageRetrievalService/build";
+    const string identifier = "test-6k-nopca-256";
 
-    Mat tmp;
-    //resize(img,img,Size(256,256));
-    SiftDetector sift_detector;
+    Vocabulary voc;
 
-    vector<VlSiftKeypoint> kpts;
-    vector<vector<float>> descriptors;
-    sift_detector.detect_and_compute(img,kpts,descriptors);
+    stringstream ss;
+    ss << path << "/voc-" << identifier << ".yml";
 
-    vector<Mat> des;
-    for(int i = 0; i < descriptors.size(); i ++){
-        des.push_back(Mat(descriptors[i]));
-    }
+    cout << "Load vocabulary from " << ss.str() << endl;
+    voc.load(ss.str());
 
-    for(int i = 0; i < kpts.size(); i ++) {
-        circle(img,Point(kpts[i].x,kpts[i].y),kpts[i].sigma,Scalar(0,0,255));
-    }
+    cout << "Load vocabulary successful." << endl;
 
-    vector<KeyPoint> oc_kpts;
-    Mat oc_des;
-    Ptr<xfeatures2d::SIFT> sift = xfeatures2d::SIFT::create(0,3,0.06,5);
-    sift->detectAndCompute(img,noArray(),oc_kpts,oc_des);
+    auto detector = make_shared<RootSiftDetector>(5,0.2,10);
 
-    for(int i = 0; i < oc_kpts.size(); i ++) {
-        circle(img,oc_kpts[i].pt,oc_kpts[i].size,Scalar(255,0,0));
-    }
+    auto db = make_shared<Database>(detector);
 
-    cout << "vl_sift:" << descriptors.size() << endl;
-    cout << "opencv_sift-descriptors:" << oc_des.size() << endl;
+    cout << "Load database from " << path << "/db-" << identifier << ".yml" << endl;
+    db->load1(path,identifier);
+    db->setVocabulary(voc);
+    cout << "Load database successful." << endl;
+
+    const string image_folder = "/home/test/images/sync_down_1";
+
+    const string str = "/home/test/test_images/6.jpg";
+    Mat img = imread(str);
     
-    namedWindow("SIFT");
-    imshow("SIFT",img);
+    vector<string> res;
+    vector<float> dists;
+    int k = 50;
 
-    waitKey();
+    Searcher s;
+    s.init(10);
+    s.setDatabase(db);
+
+    string md5;
+    float score;
+
     return 0;
 }

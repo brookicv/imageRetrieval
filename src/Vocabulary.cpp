@@ -8,31 +8,53 @@ using namespace std;
 Vocabulary::Vocabulary(){}
 Vocabulary::~Vocabulary(){}
 
-void Vocabulary::create(const std::vector<cv::Mat> &features,int k)
+Vocabulary::Vocabulary(std::shared_ptr<RootSiftDetector> featureDetector,int k)
+{
+    m_featureDetector   = featureDetector;
+    m_k                 = k;
+}   
+
+void Vocabulary::create(const std::vector<cv::Mat> &features)
 {
     Mat f;
     vconcat(features,f);
     vector<int> labels;
-    kmeans(f,k,labels,TermCriteria(TermCriteria::COUNT + TermCriteria::EPS,100,0.01),3,cv::KMEANS_PP_CENTERS,m_voc);
-    m_k = k;
+    kmeans(f,m_k,labels,TermCriteria(TermCriteria::COUNT + TermCriteria::EPS,100,0.01),3,cv::KMEANS_PP_CENTERS,m_voc);
 }
 
-void Vocabulary::create(const std::vector<std::string> &imageFileList,int k)
+void Vocabulary::create(const std::vector<std::string> &imageFileList)
 {
     vector<Mat> features;
-    vector<vector<KeyPoint>> kptList;
-    siftDetecotor::extractFeatures(imageFileList,kptList,features);
 
-    vector<Mat> rs;
-    siftDetecotor::rootSift(features,rs);
+    int count = 1;
+    int sum = 0;
+    for(const string &str : imageFileList){
 
-    create(rs,k);
+        cout << "Extracte feature from #" << count << "st images # " << str << endl;
+        Mat img = imread(str);
+        vector<KeyPoint> kpts;
+        Mat f;
+        m_featureDetector->detectAndCompute(img,kpts,f);
+        //m_featureDetector->vlfeatDetectAndCompute(img,f);
+        cout << "### Features count:" << f.rows << endl;
+
+        features.emplace_back(f);
+
+        sum += f.rows;
+        count ++;
+    }
+
+    cout << "Extracte features: " << sum << " from " << count << " images" << endl;
+
+    create(features);
 }
 
 void Vocabulary::transform_bow(const cv::Mat &f,std::vector<int> &bow)
 {
     // Find the nearest center
-    auto matcher = DescriptorMatcher::create("FlannBased");
+    //Ptr<FlannBasedMatcher> matcher = FlannBasedMatcher::create();
+
+    auto matcher = DescriptorMatcher::create("BruteForce");
     vector<DMatch> matches;
     matcher->match(f,m_voc,matches);
 
@@ -47,7 +69,8 @@ void Vocabulary::transform_bow(const cv::Mat &f,std::vector<int> &bow)
 void Vocabulary::transform_vlad(const cv::Mat &f,cv::Mat &vlad)
 {
     // Find the nearest center
-    auto matcher = DescriptorMatcher::create("FlannBased");
+    //Ptr<FlannBasedMatcher> matcher = FlannBasedMatcher::create();
+    auto matcher = DescriptorMatcher::create("BruteForce");
     vector<DMatch> matches;
     matcher->match(f,m_voc,matches);
 
@@ -82,6 +105,11 @@ bool Vocabulary::load(const std::string &filename)
 
     fs.release();
     return true;
+}
+
+void Vocabulary::setFeatureDetector(std::shared_ptr<RootSiftDetector> featureDetector)
+{
+    m_featureDetector = featureDetector;
 }
 
 bool Vocabulary::save(const std::string &filename)

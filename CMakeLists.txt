@@ -38,5 +38,7 @@ ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 
 add_executable(main main.cpp)
-
 target_link_libraries(main ${OpenCV_LIBS} libvl.so DBow3 retrieval)
+
+add_executable(train train.cpp)
+target_link_libraries(train ${OpenCV_LIBS} retrieval)

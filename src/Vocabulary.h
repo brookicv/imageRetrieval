@@ -10,30 +10,36 @@
 #ifndef H__VOCABULARY__
 #define H__VOCABULARY__
 
+#include "RootSiftDetector.h"
 #include <vector>
 #include <string>
 #include <opencv2/opencv.hpp>
+#include <memory>
 
 class Vocabulary{
 
 public:
     Vocabulary();
     ~Vocabulary();
+
+    Vocabulary(std::shared_ptr<RootSiftDetector> featureDetector,int k);
 public:
     /*
         Create from set of features
     */
-    void create(const std::vector<cv::Mat> &features,int k);
+    void create(const std::vector<cv::Mat> &features);
 
     /*
         Create from list of image
     */
-    void create(const std::vector<std::string> &imageFileList,int k);
+    void create(const std::vector<std::string> &imageFileList);
 
     /*
         Load vocabulary from the file
     */
     bool load(const std::string &filename);
+
+    void setFeatureDetector(std::shared_ptr<RootSiftDetector> featureDetector);
 
     /*
         Save vocabulary to the local file
@@ -63,6 +69,8 @@ public:
 private:
     cv::Mat m_voc;  //  Vocabulary
     int m_k;        //  Size of the vocabulary
+
+    std::shared_ptr<RootSiftDetector> m_featureDetector;
 };
 
 #endif
