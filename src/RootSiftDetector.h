@@ -14,7 +14,8 @@
 #include <vector>
 
 class RootSiftDetector {
-    
+
+public:   
     RootSiftDetector();
     ~RootSiftDetector();
 
